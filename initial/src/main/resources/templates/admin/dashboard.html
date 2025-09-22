@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <title>Admin Dashboard</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .header { background-color: #f8f9fa; padding: 15px; margin-bottom: 20px; }
+        .nav { margin-bottom: 20px; }
+        .nav a { margin-right: 15px; text-decoration: none; color: #007bff; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .btn { padding: 5px 10px; margin: 2px; text-decoration: none; }
+        .btn-danger { background-color: #dc3545; color: white; }
+        .btn-success { background-color: #28a745; color: white; }
+        .btn-warning { background-color: #ffc107; color: black; }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>Admin Dashboard</h1>
+    <p>Welcome, <span sec:authentication="name">Admin</span>!</p>
+    <p>Your roles: <span sec:authentication="authorities">ROLE_ADMIN</span></p>
+</div>
+
+<div class="nav">
+    <a href="/admin">Dashboard</a>
+    <a href="/admin/users">Manage Users</a>
+    <a href="/user">User Area</a>
+    <a href="/hello">Hello Page</a>
+    <form th:action="@{/logout}" method="post" style="display: inline;">
+        <input type="submit" value="Logout" class="btn btn-danger"/>
+    </form>
+</div>
+
+<h2>All Users</h2>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Username</th>
+        <th>Roles</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.id}"></td>
+        <td th:text="${user.username}"></td>
+        <td th:text="${user.roles}"></td>
+        <td th:text="${user.enabled} ? 'Active' : 'Disabled'"></td>
+        <td>
+            <form th:action="@{/admin/users/{id}/toggle(id=${user.id})}" method="post" style="display: inline;">
+                <input type="submit" th:value="${user.enabled} ? 'Disable' : 'Enable'"
+                       th:class="${user.enabled} ? 'btn btn-warning' : 'btn btn-success'"/>
+            </form>
+            <form th:action="@{/admin/users/{id}/promote(id=${user.id})}" method="post" style="display: inline;"
+                  th:if="${!user.roles.contains('ADMIN')}">
+                <input type="submit" value="Make Admin" class="btn btn-success"/>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
